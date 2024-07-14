@@ -35,7 +35,7 @@ dependencies:
   http: ^1.2.1
   flutter_gemini: ^2.0.4
   google_generative_ai: ^0.4.3
-
+  animate_do: ^3.3.4
 
 
   # The following adds the Cupertino Icons font to your application.

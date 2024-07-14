@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:echo_ai/services.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -86,12 +87,14 @@ class _homePageState extends State<homePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Shimmer',
-          style:
-              TextStyle(fontFamily: 'cera', fontSize: 25, color: Colors.black),
+        title: FadeInDown(
+          child: const Text(
+            'Shimmer',
+            style:
+                TextStyle(fontFamily: 'cera', fontSize: 25, color: Colors.black),
+          ),
         ),
-        leading: const Icon(Icons.menu, size: 30, color: Colors.black),
+        leading: FadeInLeft(child: const Icon(Icons.menu, size: 30, color: Colors.black)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
@@ -120,47 +123,61 @@ class _homePageState extends State<homePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //virtual assistant image
-                Center(
-                    child: Image.asset(
-                  'assets/images/ai image.png',
-                  scale: 5,
-                )),
+                ZoomIn(
+                  child: Center(
+                      child: Image.asset(
+                    'assets/images/ai image.png',
+                    scale: 5,
+                  )),
+                ),
 
                 //initial greeting message
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  margin: EdgeInsets.only(top: 30, bottom: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    border: Border.all(color: Colors.black54, width: 2),
-                    borderRadius: BorderRadius.circular(20)
-                        .copyWith(topLeft: Radius.zero),
-                  ),
-                  child: Text(
-                    generatedContent == null
-                        ? 'Good morning, what task can i do for you?'
-                        : generatedContent!,
-                    style: TextStyle(
-                      fontFamily: 'cera',
-                      fontSize: generatedContent == null ? 20 : 17,
+                ZoomIn(
+                  child: Visibility(
+                    visible: generatedImage ==  null,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: EdgeInsets.only(top: 30, bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        border: Border.all(color: Colors.black54, width: 2),
+                        borderRadius: BorderRadius.circular(20)
+                            .copyWith(topLeft: Radius.zero),
+                      ),
+                      child: Text(
+                        generatedContent == null
+                            ? 'Good morning, what task can i do for you?'
+                            : generatedContent!,
+                        style: TextStyle(
+                          fontFamily: 'cera',
+                          fontSize: generatedContent == null ? 20 : 17,
+                        ),
+                      ),
                     ),
                   ),
                 ),
 
-                if (generatedImage != null) Image.memory(generatedImage!),
+                if (generatedImage != null) Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                      child: Image.memory(generatedImage!)),
+                ),
 
                 Visibility(
-                  visible: generatedContent == null,
-                  child: const Column(
+                  visible: (generatedContent == null && generatedImage == null),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                          'Here are few suggestions',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontFamily: 'cera',
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: SlideInLeft(
+                          child: const Text(
+                            'Here are few suggestions',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontFamily: 'cera',
+                            ),
                           ),
                         ),
                       ),
@@ -175,25 +192,34 @@ class _homePageState extends State<homePage> {
                       //     style: TextStyle(color: Colors.white,fontSize: 20),
                       //   ),
                       // ),
-                      FeatureBox(
-                        title: 'Gemini ',
-                        subtitle:
-                            'A smarter way to stay organized and informed with Gemini',
-                        color: Color(0xFFDB8882),
+                      SlideInLeft(
+                        delay: const Duration(milliseconds: 300),
+                        child: const FeatureBox(
+                          title: 'Gemini ',
+                          subtitle:
+                              'A smarter way to stay organized and informed with Gemini',
+                          color: Color(0xFFDB8882),
+                        ),
                       ),
 
-                      FeatureBox(
-                        title: 'Stability AI',
-                        subtitle:
-                            'Get inspired and stay creative with your personal assistant powered by Stability AI',
-                        color: Color(0xFF8887AF),
+                      SlideInLeft(
+                        delay: const Duration(milliseconds: 600),
+                        child: const FeatureBox(
+                          title: 'Stability AI',
+                          subtitle:
+                              'Get inspired and stay creative with your personal assistant powered by Stability AI',
+                          color: Color(0xFF8887AF),
+                        ),
                       ),
 
-                      FeatureBox(
-                        title: 'Smart Voice Assistant',
-                        subtitle:
-                            'Get a both of best worlds with a voice assistant powered by Gemini and Stability AI',
-                        color: Color(0xFF5D86C5),
+                      SlideInLeft(
+                        delay: const Duration(milliseconds: 900),
+                        child: const FeatureBox(
+                          title: 'Smart Voice Assistant',
+                          subtitle:
+                              'Get a both of best worlds with a voice assistant powered by Gemini and Stability AI',
+                          color: Color(0xFF5D86C5),
+                        ),
                       ),
                     ],
                   ),
@@ -205,18 +231,20 @@ class _homePageState extends State<homePage> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: FloatingActionButton(
-          backgroundColor: Colors.black87,
-          onPressed: () async {
-            if (!isListening) {
-              await startListening();
-            } else {
-              await stopListening();
-            }
-          },
-          child: Icon(
-            isListening ? Icons.stop : Icons.mic,
-            color: Colors.white,
+        child: ZoomIn(
+          child: FloatingActionButton(
+            backgroundColor: Colors.black87,
+            onPressed: () async {
+              if (!isListening) {
+                await startListening();
+              } else {
+                await stopListening();
+              }
+            },
+            child: Icon(
+              isListening ? Icons.stop : Icons.mic,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
