@@ -12,7 +12,7 @@
     <application
         android:label="echo_ai"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/echo_ai">
         <activity
             android:name=".MainActivity"
             android:exported="true"
