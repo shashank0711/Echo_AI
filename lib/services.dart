@@ -11,6 +11,7 @@ class GeminiAPIService {
   Uint8List? image;
 
 
+  //to determine whether we have to use the gemini api or the stability ai api
   Future<Object?> isArtOrNot(String message) async {
     try{
       if (message.isEmpty) {
@@ -48,8 +49,8 @@ class GeminiAPIService {
 
   //gemini AI service to generate response
   Future<String?> geminiAPI(message) async {
-    contents.add(Content.text(message));
 
+    contents.add(Content.text(message));
 
     try{
       if (message.isEmpty) {
@@ -62,8 +63,6 @@ class GeminiAPIService {
 
       String? geminiAPIResult = response.text;
 
-      contents.add(Content.text(message));
-
       return geminiAPIResult;
 
     }catch(e){
@@ -74,7 +73,7 @@ class GeminiAPIService {
 
   //stability AI API to generate image
   Future<dynamic> stabilityAIAPI(String message) async {
-    print(message);
+    contents.add(Content.text(message));
 
     try{
       final response = await http.post(
@@ -101,8 +100,7 @@ class GeminiAPIService {
       print(response.statusCode);
 
       if (response.statusCode == 200) {
-        print(response.statusCode.toString());
-        print("Image generated successfully");
+        // print("Image generated successfully");
        return response.bodyBytes;
       } else {
         print("failed to generate image");

@@ -1,4 +1,3 @@
-import 'package:echo_ai/Screens/geminiChatPage.dart';
 import 'package:echo_ai/services.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -16,9 +15,9 @@ class _homePageState extends State<homePage> {
   SpeechToText speechToText = SpeechToText();
   String lastWords = "";
   final GeminiAPIService geminiAPIService = GeminiAPIService();
-  bool isListening =false;
-  late final Uint8List? generatedImage;
-
+  bool isListening = false;
+  Uint8List? generatedImage;
+  String? generatedContent;
 
   @override
   void initState() {
@@ -46,21 +45,27 @@ class _homePageState extends State<homePage> {
     });
 
     if (lastWords.isNotEmpty && lastWords.split(' ').length > 2) {
-      print("Sending lastWords to GeminiAPIService: $lastWords"); // Debugging statement
+      await Future.delayed(Duration(seconds: 1));
+      print("Sending lastWords to GeminiAPIService: $lastWords");
       dynamic response = await geminiAPIService.isArtOrNot(lastWords);
-      print("GeminiAPIService response: ${response.runtimeType}"); //
-      print("GeminiAPIService response: $response"); //
+      print("GeminiAPIService response: ${response.runtimeType}");
+      // print("GeminiAPIService response: $response");
 
       if (response is Uint8List) {
         setState(() {
           generatedImage = response;
+          generatedContent = null;
         });
       } else {
-        print("No image generated or response is not Uint8List");
+        setState(() {
+          generatedContent = response;
+          generatedImage = null;
+        });
       }
-      // Debugging statement
     } else {
-      print("No words recognized or too short"); // Debugging statement
+      setState(() {
+        generatedContent = 'An internal error occurred, ask any question...';
+      });
     }
   }
 
@@ -82,17 +87,35 @@ class _homePageState extends State<homePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Alice',
+          'Shimmer',
           style:
               TextStyle(fontFamily: 'cera', fontSize: 25, color: Colors.black),
         ),
-        leading: Icon(Icons.menu, size: 30, color: Colors.black),
+        leading: const Icon(Icons.menu, size: 30, color: Colors.black),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              onPressed: () {
+                setState(() {
+                  generatedImage = null;
+                  generatedContent = null;
+                });
+              },
+              icon: const Icon(
+                Icons.refresh_outlined,
+                size: 30,
+                color: Colors.black,
+              ),
+            ),
+          )
+        ],
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -106,40 +129,73 @@ class _homePageState extends State<homePage> {
                 //initial greeting message
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  margin: EdgeInsets.only(top: 30),
+                  margin: EdgeInsets.only(top: 30, bottom: 10),
                   decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
                     border: Border.all(color: Colors.black54, width: 2),
                     borderRadius: BorderRadius.circular(20)
                         .copyWith(topLeft: Radius.zero),
                   ),
-                  child: const Text(
-                    'Good morning, what task can i do for you?',
+                  child: Text(
+                    generatedContent == null
+                        ? 'Good morning, what task can i do for you?'
+                        : generatedContent!,
                     style: TextStyle(
                       fontFamily: 'cera',
-                      fontSize: 20,
+                      fontSize: generatedContent == null ? 20 : 17,
                     ),
                   ),
                 ),
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text(
-                    'Here are few suggestions',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontFamily: 'cera',
-                    ),
-                  ),
-                ),
+                if (generatedImage != null) Image.memory(generatedImage!),
 
-                //features list
-                Container(
-                  color: Colors.black,
-                  height: 200,
-                  width: 200,
-                  child: Text(
-                    lastWords,
-                    style: TextStyle(color: Colors.white,fontSize: 20),
+                Visibility(
+                  visible: generatedContent == null,
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          'Here are few suggestions',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontFamily: 'cera',
+                          ),
+                        ),
+                      ),
+
+                      //features list
+                      // Container(
+                      //   color: Colors.black,
+                      //   height: 200,
+                      //   width: 200,
+                      //   child: Text(
+                      //     lastWords,
+                      //     style: TextStyle(color: Colors.white,fontSize: 20),
+                      //   ),
+                      // ),
+                      FeatureBox(
+                        title: 'Gemini ',
+                        subtitle:
+                            'A smarter way to stay organized and informed with Gemini',
+                        color: Color(0xFFDB8882),
+                      ),
+
+                      FeatureBox(
+                        title: 'Stability AI',
+                        subtitle:
+                            'Get inspired and stay creative with your personal assistant powered by Stability AI',
+                        color: Color(0xFF8887AF),
+                      ),
+
+                      FeatureBox(
+                        title: 'Smart Voice Assistant',
+                        subtitle:
+                            'Get a both of best worlds with a voice assistant powered by Gemini and Stability AI',
+                        color: Color(0xFF5D86C5),
+                      ),
+                    ],
                   ),
                 )
               ],
@@ -150,23 +206,26 @@ class _homePageState extends State<homePage> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(10.0),
         child: FloatingActionButton(
-          backgroundColor: Colors.blueAccent.shade100,
+          backgroundColor: Colors.black87,
           onPressed: () async {
             if (!isListening) {
-               await startListening();
+              await startListening();
             } else {
               await stopListening();
             }
           },
-          child: Icon(isListening ? Icons.stop : Icons.mic),
+          child: Icon(
+            isListening ? Icons.stop : Icons.mic,
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
 }
 
-class featureBox extends StatelessWidget {
-  const featureBox({
+class FeatureBox extends StatelessWidget {
+  const FeatureBox({
     super.key,
     required this.title,
     required this.subtitle,
@@ -178,34 +237,26 @@ class featureBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => geminiChatPage()));
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-        margin: const EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                  fontFamily: 'cera',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(fontFamily: 'cera', fontSize: 13),
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+                fontFamily: 'cera', fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(fontFamily: 'cera', fontSize: 12),
+          ),
+        ],
       ),
     );
   }
