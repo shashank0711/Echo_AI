@@ -1,16 +1,47 @@
-# echo_ai
+# Echo AI
 
-A new Flutter project.
+Echo AI is a dual-functionality voice-driven app utilizes the Gemini API for generating intelligent responses and the Stability API for creating corresponding images to user voice inputs. Users receive both verbal and visual feedback, providing an enriched and interactive experience based on their voice commands.
 
-## Getting Started
+## Screenshots
 
-This project is a starting point for a Flutter application.
+First asked "What is cloud computing" then asked to "Generate an image of river and mountains"
 
-A few resources to get you started if this is your first Flutter project:
+<p align="center">
+  <img src="https://i.postimg.cc/kGgydWH2/Screenshot-20240715-171116.jpg" width="150" />
+  <img src="https://i.postimg.cc/Dwx6Bjpt/Screenshot-20240715-171129.jpg" width="150" />
+  <img src="https://i.postimg.cc/4dHTJhhx/Screenshot-20240715-171139.jpg" width="150" />
+  <img src="https://i.postimg.cc/JnxjzGwS/Screenshot-20240715-171220.jpg" width="150" />
+  <img src="https://i.postimg.cc/FsrNSzMD/Screenshot-20240715-171537.jpg" width="150" />
+  
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Running the App
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+To run the app, you need to have Flutter installed on your machine. If you don't have it installed, you can follow the instructions [here](https://flutter.dev/docs/get-started/install) to install it.
+
+1. Clone the repository:
+
+```CMD
+git clone https://github.com/shashank0711/Echo_AI.git
+```
+
+2. Navigate to the project directory:
+
+```CMD
+cd Echo_AI
+```
+
+3. Install the dependencies:
+
+```CMD
+flutter pub get
+```
+
+4. Run the app on an emulator or connected device:
+
+```CMD
+flutter run
+```
+
+## Contributing
+
+I welcome contributions to Echo AI! Whether it's fixing bugs, improving performance, or adding new features, every contribution helps make Echo AI a better app.
