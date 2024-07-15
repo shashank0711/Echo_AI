@@ -42,6 +42,8 @@ flutter pub get
 flutter run
 ```
 
+**Most Important**
+Add your own Gemini and Stability AI API Keys. If you don't have any you can get it here [Gemini API](https://aistudio.google.com/app/prompts/new_chat?gad_source=1&gclid=Cj0KCQjwkdO0BhDxARIsANkNcrepBnPX2ncUKzAVJxzBJAMgEJiLeydASSlxwlcJbl2EnWunfk5P428aAuBFEALw_wcB) and [Stability.ai API Key](https://platform.stability.ai/account/keys)
 ## Contributing
 
 I welcome contributions to Echo AI! Whether it's fixing bugs, improving performance, or adding new features, every contribution helps make Echo AI a better app.
