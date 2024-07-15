@@ -5,6 +5,8 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'dart:typed_data';
 
+import '../Utils/utilities.dart';
+
 class homePage extends StatefulWidget {
   const homePage({Key? key}) : super(key: key);
 
@@ -19,6 +21,7 @@ class _homePageState extends State<homePage> {
   bool isListening = false;
   Uint8List? generatedImage;
   String? generatedContent;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -44,30 +47,6 @@ class _homePageState extends State<homePage> {
     setState(() {
       isListening = false;
     });
-
-    if (lastWords.isNotEmpty && lastWords.split(' ').length > 2) {
-      await Future.delayed(Duration(seconds: 1));
-      print("Sending lastWords to GeminiAPIService: $lastWords");
-      dynamic response = await geminiAPIService.isArtOrNot(lastWords);
-      print("GeminiAPIService response: ${response.runtimeType}");
-      // print("GeminiAPIService response: $response");
-
-      if (response is Uint8List) {
-        setState(() {
-          generatedImage = response;
-          generatedContent = null;
-        });
-      } else {
-        setState(() {
-          generatedContent = response;
-          generatedImage = null;
-        });
-      }
-    } else {
-      setState(() {
-        generatedContent = 'An internal error occurred, ask any question...';
-      });
-    }
   }
 
   void onSpeechResult(SpeechRecognitionResult result) {
@@ -90,11 +69,12 @@ class _homePageState extends State<homePage> {
         title: FadeInDown(
           child: const Text(
             'Shimmer',
-            style:
-                TextStyle(fontFamily: 'cera', fontSize: 25, color: Colors.black),
+            style: TextStyle(
+                fontFamily: 'cera', fontSize: 25, color: Colors.black),
           ),
         ),
-        leading: FadeInLeft(child: const Icon(Icons.menu, size: 30, color: Colors.black)),
+        leading: FadeInLeft(
+            child: const Icon(Icons.menu, size: 30, color: Colors.black)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
@@ -134,9 +114,10 @@ class _homePageState extends State<homePage> {
                 //initial greeting message
                 ZoomIn(
                   child: Visibility(
-                    visible: generatedImage ==  null,
+                    visible: generatedImage == null,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       margin: EdgeInsets.only(top: 30, bottom: 10),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
@@ -144,25 +125,38 @@ class _homePageState extends State<homePage> {
                         borderRadius: BorderRadius.circular(20)
                             .copyWith(topLeft: Radius.zero),
                       ),
-                      child: Text(
-                        generatedContent == null
-                            ? 'Good morning, what task can i do for you?'
-                            : generatedContent!,
-                        style: TextStyle(
-                          fontFamily: 'cera',
-                          fontSize: generatedContent == null ? 20 : 17,
-                        ),
-                      ),
+                      child: (isLoading == true && generatedContent == null)
+                          ? const CircularIndicatorWithMessage()
+                          : Text(
+                              generatedContent == null
+                                  ? 'Good morning, what task can i do for you?'
+                                  : generatedContent!,
+                              style: TextStyle(
+                                fontFamily: 'cera',
+                                fontSize: generatedContent == null ? 20 : 17,
+                              ),
+                            ),
                     ),
                   ),
                 ),
 
-                if (generatedImage != null) Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                      child: Image.memory(generatedImage!)),
-                ),
+                if (generatedImage != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
+                    margin: const EdgeInsets.only(top: 30, bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      border: Border.all(color: Colors.black54, width: 2),
+                      borderRadius: BorderRadius.circular(20)
+                          .copyWith(topLeft: Radius.zero),
+                    ),
+                    child: (isLoading == true && generatedImage == null)
+                        ? const CircularIndicatorWithMessage()
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.memory(generatedImage!)),
+                  ),
 
                 Visibility(
                   visible: (generatedContent == null && generatedImage == null),
@@ -181,17 +175,6 @@ class _homePageState extends State<homePage> {
                           ),
                         ),
                       ),
-
-                      //features list
-                      // Container(
-                      //   color: Colors.black,
-                      //   height: 200,
-                      //   width: 200,
-                      //   child: Text(
-                      //     lastWords,
-                      //     style: TextStyle(color: Colors.white,fontSize: 20),
-                      //   ),
-                      // ),
                       SlideInLeft(
                         delay: const Duration(milliseconds: 300),
                         child: const FeatureBox(
@@ -201,7 +184,6 @@ class _homePageState extends State<homePage> {
                           color: Color(0xFFDB8882),
                         ),
                       ),
-
                       SlideInLeft(
                         delay: const Duration(milliseconds: 600),
                         child: const FeatureBox(
@@ -211,7 +193,6 @@ class _homePageState extends State<homePage> {
                           color: Color(0xFF8887AF),
                         ),
                       ),
-
                       SlideInLeft(
                         delay: const Duration(milliseconds: 900),
                         child: const FeatureBox(
@@ -239,6 +220,37 @@ class _homePageState extends State<homePage> {
                 await startListening();
               } else {
                 await stopListening();
+                setState(() {
+                  isLoading = true;
+                });
+                if (lastWords.isNotEmpty && lastWords.split(' ').length > 2) {
+                  await Future.delayed(Duration(seconds: 1));
+                  print("Sending lastWords to GeminiAPIService: $lastWords");
+                  dynamic response =
+                      await geminiAPIService.isArtOrNot(lastWords);
+                  print("GeminiAPIService response: ${response.runtimeType}");
+                  // print("GeminiAPIService response: $response");
+
+                  if (response is Uint8List) {
+                    setState(() {
+                      generatedImage = response;
+                      generatedContent = null;
+                      isLoading = false;
+                    });
+                  } else {
+                    setState(() {
+                      generatedContent = response;
+                      generatedImage = null;
+                      isLoading = false;
+                    });
+                  }
+                } else {
+                  setState(() {
+                    generatedContent =
+                        'An internal error occurred, ask any question...';
+                    isLoading = false;
+                  });
+                }
               }
             },
             child: Icon(
@@ -247,44 +259,6 @@ class _homePageState extends State<homePage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class FeatureBox extends StatelessWidget {
-  const FeatureBox({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-  });
-
-  final String title, subtitle;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-                fontFamily: 'cera', fontWeight: FontWeight.bold, fontSize: 17),
-          ),
-          Text(
-            subtitle,
-            style: const TextStyle(fontFamily: 'cera', fontSize: 12),
-          ),
-        ],
       ),
     );
   }
